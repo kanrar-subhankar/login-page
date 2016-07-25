@@ -1,4 +1,34 @@
+<?php
+session_start();
+require("database_signup.php");
 
+if(isset($_POST['submit1'])){
+	if(isset($_POST['fname1']) AND isset($_POST['email1']) AND isset($_POST['password1']))
+{
+
+	$username = mysqli_real_escape_string($connection,$_POST['fname1']);
+	$email = mysqli_escape_string($connection,$_POST['email1']);
+	$password=$_POST['password1'];
+	$query="select * from users  where email='$email' and fname='$username' ";
+	$result = mysqli_query($connection,$query);
+	$row = mysqli_fetch_assoc($result);
+	$hash_pass = $row['password'];
+	$hash = crypt($password,$hash_pass);
+	if($hash === $hash_pass){
+		$_SESSION['user'] = $username;
+		$ip=$_SESSION['user'];
+		echo "<script type='text/javascript'>";
+		echo "alert('welcome')";
+		echo "</script>";
+	}
+	else{
+		header("location:login_signup.php");
+		}
+	}
+}
+else
+header("location:login_signup.php");
+?>
 <html>
 <head>
 <title>
@@ -94,6 +124,9 @@ iframe{
 Codepalyer
 </div>
 <div id="buttonDiv">
+<form action="logout.php" method="post">
+<input type="submit" name="logout" value="Logout" style="font-size:120%">
+</form>
 <button id="runButton">Run</button>
 </div>
 <ul id="toggles">
@@ -152,43 +185,6 @@ document.getElementById("resultFrame").contentWindow.eval($("#jsCode").val());
 });
 
 </script>
-<?php
-require("database_signup.php");
-if(isset($_POST['submit'])){
-	if(isset($_POST['fname']) AND isset($_POST['email']) AND isset($_POST['password']))
-{
-
-	$username = mysqli_real_escape_string($connection,$_POST['fname']);
-	$email = mysqli_escape_string($connection,$_POST['email']); 
-	$password=$_POST['password'];
-	$query="select * from users  where email='$email' and fname='$username' ";
-	$result = mysqli_query($connection,$query);
-	$row=mysqli_fetch_assoc($result);
-	$hash_pass=$row['password'];
-	echo $hash_pass;
-	$hash=password_verify($password,$hash_pass);
-	if($hash==0){
-	$encrypt_pass=password_hash($password,PASSWORD_DEFAULT);
-		$sql = "insert into users(fname,email,password) values ('$username','$email','$encrypt_pass')";
-		$query1=mysqli_query($connection,$sql);
-		if($query1) { 
-		echo "<script type='text/javascript'>";
-		echo "alert('welcome')";
-		echo "</script>";
-			}
-		}
-		else
-	{
-	echo "<script type='text/javascript'>";
-	echo "alert('An account exists')";
-	echo "</script>";
-	}	
-	  }
-	
-}
-else
-header("location:login&signup.php");
-?>
 
 </body>
 </html>
